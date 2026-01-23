@@ -1,0 +1,11 @@
+[project]
+name = "ymeal-data"
+version = "0.1.0"
+description = "Ymeal repo for data processing"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ipykernel>=7.1.0",
+    "numpy>=2.4.1",
+    "pandas>=3.0.0",
+]
