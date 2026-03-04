@@ -33,10 +33,10 @@ COLS_NUTRITION = [
 ]
 
 COLS_DIETS = [
-    'labels_tags',               # Les certifications (Bio, Vegan officiel...)
-    'ingredients_analysis_tags', # L'analyse algo (Sans huile de palme, Vegan déduit...)
-    'allergens',                 # Le "Kill Switch" de sécurité
-    'traces'                     # Pour les allergies très strictes (optionnel mais conseillé)
+    # 'labels_tags',               # Les certifications (Bio, Vegan officiel...)
+    # 'ingredients_analysis_tags', # L'analyse algo (Sans huile de palme, Vegan déduit...)
+    #'traces',               # Le "Kill Switch" de sécurité             
+    'allergens'# Pour les allergies très strictes (optionnel mais conseillé)
 ]
 
 COLS_SCORE = [
@@ -47,7 +47,7 @@ COLS_SCORE = [
 
 
 # Liste finale des colonnes à extraire
-SELECTED_COLS = COLS_IDENTITY + COLS_NUTRITION
+SELECTED_COLS = COLS_IDENTITY + COLS_NUTRITION + COLS_DIETS 
 
 
 # %%
@@ -71,13 +71,17 @@ def process_data_in_chunks(file_path, cols, chunk_size=10000):
 
     clean_chunks = []
     
+    CRITICAL_COLS = [
+        col for col in cols
+        if col not in ['allergens']
+    ]
+
     print("Traitement des blocs en cours...")
     for chunk in chunks:
-        # Suppression immédiate des lignes incomplètes pour économiser la mémoire
-        chunk_clean = chunk.dropna()
+        chunk_clean = chunk.dropna(subset=CRITICAL_COLS)
         if not chunk_clean.empty:
             clean_chunks.append(chunk_clean)
-            
+
     return pd.concat(clean_chunks, ignore_index=True)
 
 
