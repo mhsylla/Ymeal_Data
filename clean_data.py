@@ -1,5 +1,28 @@
-# %%
 import pandas as pd
+
+INPUT_PATH = "https://static.openfoodfacts.org/data/en.openfoodfacts.org.products.csv.gz"
+
+# Configuration pour voir toutes les colonnes dans l'affichage
+pd.set_option('display.max_columns', None)
+
+# Lecture des 100 premières lignes
+df_preview = pd.read_csv(
+    INPUT_PATH, 
+    compression='gzip', 
+    sep='\t', 
+    nrows=100, 
+    low_memory=False
+)
+
+# Affiche la liste des colonnes pour vous aider à scanner
+print("Liste des colonnes disponibles :")
+print(df_preview.columns.tolist())
+
+# Affiche les données
+print("\nAperçu des données :") # Utilisez display() si vous êtes sur Jupyter/Kaggle/Colab
+
+
+
 
 INPUT_PATH = "https://static.openfoodfacts.org/data/en.openfoodfacts.org.products.csv.gz"
 
@@ -15,7 +38,8 @@ nutriscore_cols = [
 cols_diets =['allergens']
 
 target = ['nutriscore_grade']
-identity_cols = ['code', 'product_name']
+identity_cols = ['code', 'product_name', 'generic_name', 'image_small_url', 
+    'categories_tags']
 
 cols = nutriscore_cols + target + identity_cols +cols_diets 
 
@@ -52,6 +76,10 @@ def process_data(file_path, cols, chunk_size=10000):
 
         # 5. fill the na in product names
         temp_chunk['product_name'] = temp_chunk['product_name'].fillna('Unknown Product')
+        temp_chunk['generic_name'] = temp_chunk['generic_name'].fillna('None')
+        temp_chunk['image_small_url'] = temp_chunk['image_small_url'].fillna('None')
+        temp_chunk['categories_tags'] = temp_chunk['categories_tags'].fillna('None')
+
         temp_chunk['allergens'] = temp_chunk['allergens'].fillna('None')
         # 6 Detection et suppression des doublons
         nb_doublons = temp_chunk.duplicated(subset=['code']).sum()
@@ -64,16 +92,10 @@ def process_data(file_path, cols, chunk_size=10000):
         if not temp_chunk.empty:
             clean_chunks.append(temp_chunk)
 
-        df = pd.concat(clean_chunks, ignore_index=True)
-        df.to_csv(OUTPUT_PATH, index=False, encoding="utf-8")
-        print(f"Fichier sauvegardé : {OUTPUT_PATH}")
+    df = pd.concat(clean_chunks, ignore_index=True)
+    df.to_csv(OUTPUT_PATH, index=False, encoding="utf-8")
+    print(f"Fichier sauvegardé : {OUTPUT_PATH}")
 
     return df
 
-
-
-
-# %%
 process_data(INPUT_PATH, cols)
-
-
